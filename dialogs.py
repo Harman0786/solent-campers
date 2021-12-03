@@ -25,8 +25,8 @@ class CustomerDialog:
         bookingTable.heading("date",text="Date",anchor=tk.CENTER)
 
         rows = []
-        if os.path.isfile('data/bookings.csv'):
-            f = open('data/bookings.csv', 'r', newline='', encoding='utf-8')
+        if os.path.isfile('bookingData.csv'):
+            f = open('bookingData.csv', 'r', newline='', encoding='utf-8')
             reader = csv.reader(f)
             header = next(reader)
             id = 0
@@ -50,8 +50,8 @@ class CustomerDialog:
         
 
     def exportData(self):
-        if os.path.isfile('data/bookings.csv'):
-            f = open('data/bookings.csv', 'r', newline='', encoding='utf-8')
+        if os.path.isfile('export.json'):
+            f = open('export.json', 'r', newline='', encoding='utf-8')
             reader = csv.reader(f)
             header = next(reader)
             bookingList = []
@@ -73,7 +73,6 @@ class CustomerDialog:
 class AdvisorDialog:
     def __init__(self, parent):
         self.dialog = tk.Toplevel(parent)
-        self.dialog.grab_set()
 
         regionLabel = tk.Label(self.dialog, text="Select Region")
         regionLabel.pack(side=tk.TOP, pady=(20,0))
@@ -120,7 +119,7 @@ class AdvisorDialog:
             messagebox.showerror(master=self.dialog, title="File Not Found", message="Sorry the program could not find the required files")
             return
         else:
-            f = open('data/campData.csv', 'r')
+            f = open('campData.csv', 'r')
             reader = csv.reader(f)
             header = next(reader)
             for row in reader:
@@ -148,3 +147,84 @@ class AdvisorDialog:
 
     def saveBooking(self):
         bookingID = random.randint(0, 50)
+
+class AdminDialog:
+    def __init__(self, parent):
+        self.dialog = tk.Toplevel(parent)  
+
+        labelCamper = tk.Label(self.dialog, text="New Camper Van.")
+        labelCamper.pack(side=tk.TOP, padx=(50,10))
+
+        label2 = tk.Label(self.dialog, text="Select Type")
+        label2.pack(side=tk.TOP)
+
+        self.camperType = tk.StringVar()
+        self.camperType.set("Small")
+
+        self.camperTypeMenu = tk.OptionMenu(self.dialog, self.camperType, *["Small", "Medium", "Large"])
+        self.camperTypeMenu.pack(side=tk.TOP, pady=(0,20))
+
+        buttonCamperAdd = tk.Button(self.dialog, text="Add New Van", height=1, width=15, command=self.addCamper)
+        buttonCamperAdd.pack(side=tk.TOP)
+
+        labelCampSite = tk.Label(self.dialog, text="New Camp Site.")
+        labelCampSite.pack(side=tk.TOP, pady=(10,10))
+
+        self.campName = tk.StringVar()
+        self.campName.set("")
+
+        self.region = tk.StringVar()
+        self.region.set("North West")
+        self.regionList = ["North East", "North West", "Yorkshire", "East Midlands", "West Midlands", "South East"]
+
+        campRegionMenu = tk.OptionMenu(self.dialog, self.region, *self.regionList)
+        campRegionMenu.pack(side=tk.TOP, pady=(0,5))
+
+        label1 = tk.Label(self.dialog, text="Camp Site Name")
+        label1.pack(side=tk.TOP)
+
+        self.campNameField = tk.Entry(self.dialog, textvariable=self.campName)
+        self.campNameField.pack(side=tk.TOP, pady=(00,10))       
+
+        campSiteAddButton = tk.Button(self.dialog, text="Add Site", height=1, width=15, command=self.addCampSite)
+        campSiteAddButton.pack(side=tk.TOP)
+
+        self.dialog.title('Administrator - Solent Campers')
+        self.dialog.geometry("400x350+450+100")
+     
+
+    def addCamper(self):
+        id = random.randint(1,20)
+        header = ['id', 'size']
+
+        if not os.path.isfile('camperData.csv'):
+            f = open('camperData.csv', 'w', newline='', encoding='utf-8')
+            csvwriter = csv.writer(f)
+            csvwriter.writerow(header)
+            csvwriter.writerow([id, self.camperType.get()])
+            f.close()
+        else:
+            f = open('camperData.csv', 'a', newline='', encoding='utf-8')
+            csvwriter = csv.writer(f)
+            csvwriter.writerow([id, self.camperType.get()])
+            f.close()
+            
+        messagebox.showinfo(master=self.dialog, title="New Camper Added", message="Camper ID: " + str(id) +  " Camper Size: " + self.camperType.get())
+
+    def addCampSite(self):
+        id = random.randint(1,50)
+        header = ['id', 'camp', 'region']
+
+        if not os.path.isfile('campData.csv'):
+            f = open('campData.csv', 'w', newline='', encoding='utf-8')
+            csvwriter = csv.writer(f)
+            csvwriter.writerow(header)
+            csvwriter.writerow([id, self.campName.get(), self.region.get()])
+            f.close()
+        else:
+            f = open('campData.csv', 'a', newline='', encoding='utf-8')
+            csvwriter = csv.writer(f)
+            csvwriter.writerow([id, self.campName.get(), self.region.get()])
+            f.close()
+            
+        messagebox.showinfo(master=self.dialog, title="New Camp Site Added", message="Camp Site ID: " + str(id) +  " Camp Site Name: " + self.campName.get() +  " Region Name: " + self.region.get())

@@ -1,6 +1,6 @@
 import tkinter as tk
 import tkinter.ttk as ttk
-from dialogs import CustomerDialog, AdvisorDialog
+from dialogs import CustomerDialog, AdvisorDialog, AdminDialog
 
 class Main:
     def __init__(self):
@@ -30,7 +30,8 @@ class Main:
         advisorDialog = AdvisorDialog(self.root)
         advisorDialog.dialog.mainloop()
     def adminDialog(self):
-        pass
+        adminDialog = AdminDialog(self.root)
+        adminDialog.dialog.mainloop()
 
     def cutomerDialog(self):
         customerDialog = CustomerDialog(self.root)
