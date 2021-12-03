@@ -1,4 +1,5 @@
 import tkinter as tk
+from dialogs import CustomerDialog
 
 class Main:
     def __init__(self):
@@ -28,7 +29,8 @@ class Main:
         pass
 
     def cutomerDialog(self):
-        pass
+        customerDialog = CustomerDialog(self.root)
+        customerDialog.dialog.mainloop()
 
 app = Main()
 app.root.mainloop()
