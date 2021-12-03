@@ -1,5 +1,5 @@
 import tkinter as tk
-from dialogs import CustomerDialog
+from dialogs import CustomerDialog, AdvisorDialog
 
 class Main:
     def __init__(self):
@@ -24,7 +24,8 @@ class Main:
         self.root.geometry("250x350+200+250")
 
     def advisorDialog(self):
-        pass
+        advisorDialog = AdvisorDialog(self.root)
+        advisorDialog.dialog.mainloop()
     def adminDialog(self):
         pass
 

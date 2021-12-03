@@ -69,3 +69,82 @@ class CustomerDialog:
             with open("export.json", "a") as outF:
                 outF.write(json.dumps(bookingList, indent = 4))
             f.close()
+
+class AdvisorDialog:
+    def __init__(self, parent):
+        self.dialog = tk.Toplevel(parent)
+        self.dialog.grab_set()
+
+        regionLabel = tk.Label(self.dialog, text="Select Region")
+        regionLabel.pack(side=tk.TOP, pady=(20,0))
+
+        self.region = tk.StringVar()
+        self.region.set("North East")
+
+        self.camper = tk.StringVar()
+        self.camper.set("Small")
+
+        self.camp = tk.StringVar()
+        self.camp.set("")
+
+        self.campList = []
+        self.campersType = ["Small", "Medium", "Large"]
+        self.regioList = ["North East", "North West", "Yorkshire", "East Midlands", "West Midlands", "South East"]
+
+        labelvan = tk.Label(self.dialog, text="Van Type")
+        labelvan.pack(side=tk.TOP, pady=(5,0))
+
+        optionVan = tk.OptionMenu(self.dialog, self.camper, *self.campersType)
+        optionVan.pack(side=tk.TOP)
+
+        labelregion = tk.Label(self.dialog, text="Region")
+        labelregion.pack(side=tk.TOP, pady=(5,0))
+
+        optionRegion = tk.OptionMenu(self.dialog, self.region, *self.regioList, command=self.omChanged)
+        optionRegion.pack(side=tk.TOP)
+        
+        labelcamp = tk.Label(self.dialog, text="Camp Name")
+        labelcamp.pack(side=tk.TOP, pady=(5,0))
+
+        self.optionCamp = tk.OptionMenu(self.dialog, self.camp, self.campList)   
+
+        self.bookButton = tk.Button(self.dialog, text="Book", command=self.saveBooking)
+
+        self.dialog.title('Advisor - Solent Campers')
+        self.dialog.geometry("400x350+400+100")
+
+    def omChanged(self, region):
+
+        camps = []
+        if not os.path.isfile('campData.csv'):
+            messagebox.showerror(master=self.dialog, title="File Not Found", message="Sorry the program could not find the required files")
+            return
+        else:
+            f = open('data/campData.csv', 'r')
+            reader = csv.reader(f)
+            header = next(reader)
+            for row in reader:
+                if int(row[2]) == region:
+                    camps.append(row)
+
+            f.close()
+
+            if not len(camps) == 0:
+                self.campList = camps
+                self.camp.set(camps[0][1])
+                menu = self.optionCamp["menu"]
+                menu.delete(0, "end")
+                for value in self.campList:
+                    menu.add_command(label=value[1], command=lambda v=value[1]: self.camp.set(v))
+
+                campLabel = tk.Label(self.dialog, text="Select Region")
+                campLabel.pack(side=tk.TOP, pady=(20,0))
+                self.optionCamp.pack(side=tk.TOP, pady=(0,30))
+                self.bookButton.pack(side=tk.TOP)
+            else:
+                messagebox.showerror(master=self.dialog, title="Sorry", message="No Camping Site Added in this region. Contact Administrator.")
+                return
+        
+
+    def saveBooking(self):
+        bookingID = random.randint(0, 50)
