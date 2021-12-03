@@ -28,13 +28,16 @@ class Main:
 
     def advisorDialog(self):
         advisorDialog = AdvisorDialog(self.root)
+        advisorDialog.dialog.grab_set()
         advisorDialog.dialog.mainloop()
     def adminDialog(self):
         adminDialog = AdminDialog(self.root)
+        adminDialog.dialog.grab_set()
         adminDialog.dialog.mainloop()
 
     def cutomerDialog(self):
         customerDialog = CustomerDialog(self.root)
+        customerDialog.dialog.grab_set()
         customerDialog.dialog.mainloop()
 
 app = Main()
