@@ -7,24 +7,27 @@ class CustomerDialog:
     def __init__(self, parent):
         self.dialog = tk.Toplevel(parent)
 
+        buttonExport = tk.Button(self.dialog, text="Export Booking Data", height=1, width=20, bg="green", command=self.exportData)
+        buttonExport.pack(side=tk.TOP, pady=(20,10))
+
         bookingTable = ttk.Treeview(self.dialog)
-        bookingTable['columns'] = ('id', 'camp', 'van', 'region', 'date')
+        bookingTable['columns'] = ('id', 'camp_name', 'region_name', 'camper_size', 'date_of_booking')
 
         bookingTable.column("#0", width=0,  stretch=tk.NO)
         bookingTable.column("id", anchor=tk.CENTER, width=80)
-        bookingTable.column("camp",anchor=tk.CENTER, width=80)
-        bookingTable.column("van",anchor=tk.CENTER, width=80)
-        bookingTable.column("region",anchor=tk.CENTER, width=80)
-        bookingTable.column("date",anchor=tk.CENTER, width=80)
+        bookingTable.column("camp_name",anchor=tk.CENTER, width=80)
+        bookingTable.column("region_name",anchor=tk.CENTER, width=80)
+        bookingTable.column("camper_size",anchor=tk.CENTER, width=80)
+        bookingTable.column("date_of_booking",anchor=tk.CENTER, width=80)
 
         bookingTable.heading("#0",text="",anchor=tk.CENTER)
-        bookingTable.heading("id",text="Id",anchor=tk.CENTER)
-        bookingTable.heading("camp",text="Camp",anchor=tk.CENTER)
-        bookingTable.heading("van",text="Van",anchor=tk.CENTER)
-        bookingTable.heading("region",text="Region",anchor=tk.CENTER)
-        bookingTable.heading("date",text="Date",anchor=tk.CENTER)
+        bookingTable.heading("id",text="Booking ID",anchor=tk.CENTER)
+        bookingTable.heading("camp_name",text="Camp Site",anchor=tk.CENTER)
+        bookingTable.heading("region_name",text="Region",anchor=tk.CENTER)
+        bookingTable.heading("camper_size",text="Camper Size",anchor=tk.CENTER)
+        bookingTable.heading("date_of_booking",text="Date",anchor=tk.CENTER)
 
-        rows = []
+        self.dataForExport = []
         if os.path.isfile('bookingData.csv'):
             f = open('bookingData.csv', 'r', newline='', encoding='utf-8')
             reader = csv.reader(f)
@@ -32,43 +35,34 @@ class CustomerDialog:
             id = 0
             for row in reader:
                 bookingTable.insert(parent='',index='end',iid=id, text='',values=(row[0], row[1], row[2], row[3], row[4]))
+                self.dataForExport.append(row)
                 id = id+1
             f.close()
 
             bookingTable.pack(side=tk.TOP)
-            buttonExport = tk.Button(self.dialog, text="Export Data", height=3, width=15, command=self.exportData)
-            buttonExport.pack(side=tk.TOP)
-
-            for row in rows:
-                row.pack(side=tk.TOP)
         else:
             errorLable = tk.Label(self.dialog, text="Sorry, You got no bookings!")
             errorLable.pack(side=tk.TOP, pady=(50,0))      
 
         self.dialog.title('Customer - Solent Campers')
-        self.dialog.geometry("400x500+400+100")
+        self.dialog.geometry("420x360+400+100")
         
 
-    def exportData(self):
-        if os.path.isfile('export.json'):
-            f = open('export.json', 'r', newline='', encoding='utf-8')
-            reader = csv.reader(f)
-            header = next(reader)
-            bookingList = []
-            for row in reader:
-                booking = {
-                    "booking_id": row[0],
-                    "camp_name": row[1],
-                    "camper_type": row[2],
-                    "region_name": row[3],
-                    "booking_date": row[4]
-                }
+    def exportData(self):     
+        bookingList = []
+        for row in self.dataForExport:
+            booking = {
+                "booking_id": row[0],
+                "camp_name": row[1],
+                "camper_type": row[2],
+                "region_name": row[3],
+                "booking_date": row[4]
+            }
 
-                bookingList.append(booking)
+            bookingList.append(booking)
 
-            with open("export.json", "a") as outF:
-                outF.write(json.dumps(bookingList, indent = 4))
-            f.close()
+        with open("export.json", "a") as outF:
+            outF.write(json.dumps(bookingList, indent = 4))
 
 class AdvisorDialog:
     def __init__(self, parent):
