@@ -86,9 +86,9 @@ class AdvisorDialog:
         self.camp = tk.StringVar()
         self.camp.set("")
 
-        self.campList = []
+        self.campSites = []
         self.campersType = ["Small", "Medium", "Large"]
-        self.regioList = ["North East", "North West", "Yorkshire", "East Midlands", "West Midlands", "South East"]
+        self.regionList = ["North East", "North West", "Yorkshire", "East Midlands", "West Midlands", "South East"]
 
         labelvan = tk.Label(self.dialog, text="Van Type")
         labelvan.pack(side=tk.TOP, pady=(5,0))
@@ -99,13 +99,13 @@ class AdvisorDialog:
         labelregion = tk.Label(self.dialog, text="Region")
         labelregion.pack(side=tk.TOP, pady=(5,0))
 
-        optionRegion = tk.OptionMenu(self.dialog, self.region, *self.regioList, command=self.omChanged)
+        optionRegion = tk.OptionMenu(self.dialog, self.region, *self.regionList, command=self.omChanged)
         optionRegion.pack(side=tk.TOP)
         
         labelcamp = tk.Label(self.dialog, text="Camp Name")
         labelcamp.pack(side=tk.TOP, pady=(5,0))
 
-        self.optionCamp = tk.OptionMenu(self.dialog, self.camp, self.campList)   
+        self.campOptionMenu = tk.OptionMenu(self.dialog, self.camp, self.campSites)   
 
         self.bookButton = tk.Button(self.dialog, text="Book", command=self.saveBooking)
 
@@ -123,30 +123,72 @@ class AdvisorDialog:
             reader = csv.reader(f)
             header = next(reader)
             for row in reader:
-                if int(row[2]) == region:
+                if row[2] == region:
                     camps.append(row)
 
             f.close()
 
             if not len(camps) == 0:
-                self.campList = camps
+                self.campSites = camps
                 self.camp.set(camps[0][1])
-                menu = self.optionCamp["menu"]
+
+                menu = self.campOptionMenu["menu"]
                 menu.delete(0, "end")
-                for value in self.campList:
+                for value in self.campSites:
                     menu.add_command(label=value[1], command=lambda v=value[1]: self.camp.set(v))
 
-                campLabel = tk.Label(self.dialog, text="Select Region")
+                campLabel = tk.Label(self.dialog, text="Select A Camp Site")
                 campLabel.pack(side=tk.TOP, pady=(20,0))
-                self.optionCamp.pack(side=tk.TOP, pady=(0,30))
+
+                self.campOptionMenu.pack(side=tk.TOP, pady=(0,20))
                 self.bookButton.pack(side=tk.TOP)
             else:
-                messagebox.showerror(master=self.dialog, title="Sorry", message="No Camping Site Added in this region. Contact Administrator.")
+                messagebox.showerror(master=self.dialog, title="No Sites Found", message="Couldn't Find a Camping Site Here!")
                 return
         
 
     def saveBooking(self):
-        bookingID = random.randint(0, 50)
+        id = random.randint(0, 50)
+
+        if not os.path.isfile('bookingData.csv'):
+            f = open('bookingData.csv', 'w', newline='', encoding='utf-8')
+            csvwriter = csv.writer(f)
+            csvwriter.writerow(['id', 'camp', 'region', 'camper', 'time_of_booking'])
+            csvwriter.writerow([id, self.camp.get(), self.region.get(), self.camper.get(), datetime.date.today()])
+            f.close()
+        else:
+            f = open('bookingData.csv', 'a', newline='', encoding='utf-8')
+            csvwriter = csv.writer(f)
+            csvwriter.writerow([id, self.camp.get(), self.region.get(), self.camper.get(), datetime.date.today()])
+            f.close()
+
+        ConfirmationDialog(self.dialog, (id, self.camp.get(), self.region.get(), self.camper.get(), datetime.date.today()))
+            
+class ConfirmationDialog:
+    def __init__(self, parent, data):
+        self.dialog = tk.Toplevel(parent) 
+        self.dialog.grab_set()
+
+        label1 = tk.Label(self.dialog, text="Booking Confirmed")
+        label1.pack(side=tk.TOP)
+
+        confirmationTable = ttk.Treeview(self.dialog)
+        confirmationTable['columns'] = ('field', 'value')
+
+        confirmationTable.column("#0", width=0,  stretch=tk.NO)
+        confirmationTable.column("field", anchor=tk.CENTER, width=80)
+        confirmationTable.column("value",anchor=tk.CENTER, width=80)
+
+        confirmationTable.insert(parent='',index='end',iid=0, text='',values=("Booking ID", data[0]))
+        confirmationTable.insert(parent='',index='end',iid=1, text='',values=("Camp Name", data[1]))
+        confirmationTable.insert(parent='',index='end',iid=2, text='',values=("Region Name", data[2]))
+        confirmationTable.insert(parent='',index='end',iid=3, text='',values=("Campter Size", data[3]))
+        confirmationTable.insert(parent='',index='end',iid=4, text='',values=("Booking Date", data[4]))
+
+        confirmationTable.pack(side=tk.TOP)
+
+        self.dialog.title('Administrator - Solent Campers')
+        self.dialog.geometry("300x350+450+100")
 
 class AdminDialog:
     def __init__(self, parent):
